@@ -1,0 +1,66 @@
+name: suq
+
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: suq
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: suq
+      MONGO_INITDB_ROOT_PASSWORD: qazwsxedc
+      MONGO_INITDB_DATABASE: suq
+    ports:
+      - "27017:27017"
+    volumes:
+      - suq_mongo_volume:/data/db
+    networks:
+      - suq_network 
+
+  mongo-express:
+    image: mongo-express:1.0.2-20-alpine3.19
+    restart: unless-stopped
+    ports:
+      - 8082:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://suq:qazwsxedc@mongo:27017/?authSource=admin
+      ME_CONFIG_BASICAUTH_ENABLED: true
+      ME_CONFIG_BASICAUTH_USERNAME: iced
+      ME_CONFIG_BASICAUTH_PASSWORD: qazwsxedc
+    networks:
+      - movie_network
+
+  seaweed:
+    image: chrislusf/seaweedfs:4.25
+    restart: unless-stopped
+    ports:
+      - "8333:8333"
+      - "9333:9333"
+    environment:
+      - AWS_ACCESS_KEY_ID=iced
+      - AWS_SECRET_ACCESS_KEY=qazwsxedc
+      - S3_BUCKET=suq
+    volumes:
+      - suq_seaweed:/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: suq-backend 
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    networks:
+      - suq_network
+    depends_on:
+      - mongo
+
+volumes:
+  suq_mongo_volume:
+  suq_seaweed:
+
+networks:
+  suq_network:
+    driver: bridge

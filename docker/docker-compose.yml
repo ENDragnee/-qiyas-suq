@@ -27,7 +27,7 @@ services:
       ME_CONFIG_BASICAUTH_USERNAME: iced
       ME_CONFIG_BASICAUTH_PASSWORD: qazwsxedc
     networks:
-      - movie_network
+      - suq_network
 
   seaweed:
     image: chrislusf/seaweedfs:4.25

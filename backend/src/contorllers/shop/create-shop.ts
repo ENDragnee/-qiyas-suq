@@ -1,16 +1,10 @@
 import { HashPassword } from "@/libs/password-utils";
 import Shop from "@/models/shop";
 import type { Request, Response, NextFunction } from "express";
-
-interface CreateShop {
-  name: string;
-  accounts: string[];
-  password: string;
-  banner?: string;
-}
+import type { CreateShopInput } from "@/schemas/shop.schema";
 
 export const CreateShop = async (
-  req: Request<{}, {}, CreateShop>,
+  req: Request<{}, {}, CreateShopInput["body"]>,
   res: Response,
   _next: NextFunction,
 ) => {
@@ -53,8 +47,15 @@ export const CreateShop = async (
       data: createShop,
     });
   } catch (err) {
-    res.status(500).json({
-      message: "Error unexpected error has occured",
+    if (Bun.env.ENVIRONMENT === "production") {
+      return res.status(500).json({
+        message: "Unexpected error has occured",
+      });
+    }
+
+    return res.status(500).json({
+      message: "Unexpected error has occured",
+      data: err,
     });
   }
 };

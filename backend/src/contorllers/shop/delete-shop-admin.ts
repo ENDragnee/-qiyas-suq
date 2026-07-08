@@ -22,14 +22,15 @@ export async function DeleteShopById(
 
     const { id } = req.params;
 
-    await Shop.findByIdAndDelete(id).catch((err) => {
-      return res.status(400).json({
-        message: "Error deleting the shop",
-        ...(Bun.env.ENVIRONMENT !== "production" && { data: err }),
-      });
-    });
+    const deletedShop = await Shop.findByIdAndDelete(id);
 
-    return res.status(204);
+    if (!deletedShop) {
+      return res.status(404).json({
+        message: "Shop not found or you do not have permission to delete it",
+      });
+    }
+
+    return res.status(204).send();
   } catch (err) {
     if (Bun.env.ENVIRONMENT === "production") {
       return res.status(500).json({

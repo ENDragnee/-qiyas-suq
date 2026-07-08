@@ -1,9 +1,9 @@
-import Shop from "@/models/shop";
-import type { DeleteShopInput } from "@/schemas/shop.schema";
 import type { Request, Response, NextFunction } from "express";
+import type { DeleteItemByIdInput } from "@/schemas/item.schema";
+import Item from "@/models/item";
 
-export async function DeleteShop(
-  req: Request<{}, {}, DeleteShopInput["body"], {}>,
+export async function DeleteItem(
+  req: Request<DeleteItemByIdInput["params"], {}, {}, {}>,
   res: Response,
   _next: NextFunction,
 ) {
@@ -14,15 +14,20 @@ export async function DeleteShop(
       });
     }
 
-    const { id } = req.user;
+    const { shopId } = req.user;
+    const { id: itemId } = req.params;
 
-    const deletedShop = await Shop.findByIdAndDelete(id);
+    const deletedItem = await Item.findOneAndDelete({
+      _id: itemId,
+      shopId,
+    });
 
-    if (!deletedShop) {
+    if (!deletedItem) {
       return res.status(404).json({
-        message: "Shop not found or you do not have permission to delete it",
+        message: "Item not found or you do not have permission to delete it",
       });
     }
+
     return res.status(204).send();
   } catch (err) {
     if (Bun.env.ENVIRONMENT === "production") {

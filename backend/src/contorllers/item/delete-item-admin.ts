@@ -1,9 +1,9 @@
 import Shop from "@/models/shop";
-import type { DeleteShopInput } from "@/schemas/shop.schema";
+import type { DeleteShopByIdInput } from "@/schemas/shop.schema";
 import type { Request, Response, NextFunction } from "express";
 
-export async function DeleteShop(
-  req: Request<{}, {}, DeleteShopInput["body"], {}>,
+export async function DeleteItemAdmin(
+  req: Request<DeleteShopByIdInput["params"], {}, {}, {}>,
   res: Response,
   _next: NextFunction,
 ) {
@@ -14,13 +14,19 @@ export async function DeleteShop(
       });
     }
 
-    const { id } = req.user;
+    if (req.user.role != "admin") {
+      return res.status(403).json({
+        error: "User is not an admin",
+      });
+    }
 
-    const deletedShop = await Shop.findByIdAndDelete(id);
+    const { id } = req.params;
 
-    if (!deletedShop) {
+    const deletedItem = await Shop.findByIdAndDelete(id);
+
+    if (!deletedItem) {
       return res.status(404).json({
-        message: "Shop not found or you do not have permission to delete it",
+        message: "Item not found or you do not have permission to delete it",
       });
     }
     return res.status(204).send();

@@ -21,7 +21,7 @@ shopRoutes.get("/api/shop", validate(getShopSchema), GetShops);
 shopRoutes.get("/api/shop/:id", validate(getShopByIdSchema), GetShop);
 shopRoutes.post("/api/shop", validate(createShopSchema), CreateShop);
 shopRoutes.delete(
-  "/api/shop/:id",
+  "/api/admin/shop/:id",
   validate(deleteShopByIdSchema),
   DeleteShopById,
 );

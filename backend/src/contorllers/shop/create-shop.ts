@@ -9,7 +9,7 @@ export const CreateShop = async (
   _next: NextFunction,
 ) => {
   try {
-    if (!req.isAuthenticated()) {
+    if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({
         error: "User is not logged in",
       });
@@ -21,11 +21,6 @@ export const CreateShop = async (
       });
     }
 
-    if (!req.body || Object.keys(req.body).length === 0) {
-      return res
-        .status(400)
-        .json({ error: "Request body is missing or empty" });
-    }
     const { name, accounts, password, banner } = req.body;
     const hashedPassword: string = await HashPassword(password);
 

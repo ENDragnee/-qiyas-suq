@@ -8,6 +8,7 @@ declare module "express-session" {
       userName?: string;
       name?: string;
       role: "user" | "admin";
+      shopId: string;
     };
   }
 }

@@ -6,15 +6,17 @@ import {
 import User from "../models/user";
 import { ValidatePassword } from "../libs/password-utils";
 
-passport.serializeUser((user, done) => {
+passport.serializeUser((user: Express.User, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser((id, done) => {
-  User.findById(id)
-    .then((user) => done(null, user))
-    .catch((err) => done(err));
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user as Express.User | null);
+  } catch (err) {}
 });
+
 const strategyOptions: IStrategyOptions = {
   usernameField: "userName",
   passwordField: "password",
@@ -33,7 +35,7 @@ passport.use(
         return done(null, false);
       }
 
-      return done(null, findUser);
+      return done(null, findUser as any as Express.User);
     } catch (err) {
       return done(err);
     }

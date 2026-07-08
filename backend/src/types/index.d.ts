@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 declare global {
   namespace Express {
     interface User {
@@ -5,6 +7,7 @@ declare global {
       name?: string;
       userName?: string;
       role: "user" | "admin";
+      shopId: Types.ObjectId;
     }
   }
 }

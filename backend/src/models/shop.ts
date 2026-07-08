@@ -3,6 +3,7 @@ import mongoose, { Schema } from "mongoose";
 interface IShopSchema {
   name: string;
   accounts: string[];
+  password: string;
   banner?: string;
 }
 
@@ -14,6 +15,10 @@ const shopSchema = new Schema<IShopSchema>(
     },
     accounts: {
       type: [String],
+      required: true,
+    },
+    password: {
+      type: String,
       required: true,
     },
     banner: {

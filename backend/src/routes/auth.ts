@@ -2,10 +2,12 @@ import { Router } from "express";
 import passport from "passport";
 import { Signup } from "@/contorllers/auth/signup";
 import { ResetPassword } from "@/contorllers/auth/reset-password";
+import { createUserSchema } from "@/schemas/user.schema";
+import { validate } from "@/middleware/validate";
 
 export const authRoutes = Router();
 
-authRoutes.post("/api/auth/signup", Signup);
+authRoutes.post("/api/auth/signup", validate(createUserSchema), Signup);
 
 authRoutes.post(
   "/api/auth/login",

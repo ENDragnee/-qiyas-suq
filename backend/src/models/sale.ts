@@ -6,6 +6,7 @@ interface ISaleSchema {
   price: number;
   quantity: number;
   code: string;
+  status: "pending" | "canceled" | "success" | "failed";
 }
 
 const saleSchema = new Schema<ISaleSchema>(
@@ -31,6 +32,11 @@ const saleSchema = new Schema<ISaleSchema>(
     code: {
       type: String,
       required: true,
+    },
+    status: {
+      type: String,
+      required: true,
+      default: "pending",
     },
   },
   { timestamps: true },

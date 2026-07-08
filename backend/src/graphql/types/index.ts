@@ -1,19 +1,19 @@
 export const typeDefs = `#graphql
-  type IMovie {
-    title: String
-    description: String
-    genre: [String]
-    releaseDate: String
-    duration: Int
-    rating: Float
-    language: String
-    director: [String]
-    cast: [String]
-    posterImage: String
-    trailerUrl: String
+  type ISale {
+    id: String
+    itemId: String
+    price: Float
+    quantity: Int
+    code: String
+    status: String
   }
 
-  type MovieMetadata {
+  type FetchSale {
+    message: String!
+    data: ISale!
+  }
+
+  type SaleMetadata {
     totalDocuments: Int!
     totalPages: Int!
     currentPage: Int!
@@ -21,42 +21,53 @@ export const typeDefs = `#graphql
     hasPrevPage: Boolean!
   }
 
-  type Movie {
-    data: [IMovie!]!
-    metaData: MovieMetadata!
+  type Sale {
+    data: [ISale]
+    metadata: SaleMetadata
   }
 
   type Query {
-    hello: String
-    welcome(name: String!): String
-    movies(
+    fetchSales(
       page: Int = 1
       limit: Int = 10
       search: String
-      genre: String
-      relaseDate: Int
-      sort: String = "asc"
-    ): Movie!
+      sortBy: String = "createdAt"
+      order: String = "asc"
+      status: String = "success"
+    ): Sale
+
+    fetchSale(saleId: String!): FetchSale!
   }
 
-  type CreateMovie {
+  type CreateSale {
     message: String!
-    data: IMovie
+    data: ISale
+  }
+
+  type IItem {
+    name: String!
+    stock: Int!
+    description: String
+  }
+
+  type UpdateSaleStatus {
+    message: String!
+    staus: String!
+    data: IItem
   }
 
   type Mutation {
-    postMovie(
-      title: String!
-      description: String!
-      genre: [String]!
-      releaseDate: String!
-      duration: Int!
-      rating: Float!
-      language: String!
-      director: [String]!
-      cast: [String]!
-      posterImage: String!
-      trailerUrl: String!
-    ): CreateMovie!
+    createSale(
+      itemId: String!
+      price: Float!
+      quantity: Int!
+      status: String = "pending"
+      code: String!
+    ): CreateSale!
+
+    updateSalesStatus(
+      saleId: String!
+      status: String = "failed"
+    ): UpdateSaleStatus! 
   }
 `;

@@ -5,5 +5,4 @@ import { createShopSchema } from "@/schemas/shop.schema";
 
 export const shopRoutes = Router();
 
-// The middleware runs and intercepts bad data before the controller is ever invoked
 shopRoutes.post("/api/shop", validate(createShopSchema), CreateShop);

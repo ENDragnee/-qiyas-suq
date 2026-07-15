@@ -47,10 +47,6 @@ export const deleteItemByIdSchema = z.object({
 export type DeleteItemByIdInput = z.infer<typeof deleteItemByIdSchema>;
 
 export const patchItemSchema = z.object({
-  user: z.object({
-    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID format"),
-    shopId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID format"),
-  }),
   params: z.object({
     id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID format"),
   }),

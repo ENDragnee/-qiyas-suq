@@ -31,7 +31,7 @@ export async function GetItems(
         .sort({ [sortBy]: order === "asc" ? 1 : -1 })
         .limit(limit)
         .lean(),
-      Item.countDocuments(),
+      Item.countDocuments(queryFilter),
     ]);
 
     const totalPages = Math.ceil(totalDocument / limit);

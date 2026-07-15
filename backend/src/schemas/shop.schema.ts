@@ -45,10 +45,6 @@ export const deleteShopByIdSchema = z.object({
 export type DeleteShopByIdInput = z.infer<typeof deleteShopByIdSchema>;
 
 export const patchShopSchema = z.object({
-  user: z.object({
-    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID format"),
-    shopId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID format"),
-  }),
   body: z.object({
     name: z.string().min(3, "Name must be at least 3 characters").optional(),
     accounts: z.array(z.string()).min(1, "Array cannot be empty").optional(),

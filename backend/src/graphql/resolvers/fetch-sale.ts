@@ -4,11 +4,11 @@ import { fetchSaleSchema, type fetchSaleInput } from "@/schemas/sale.schema";
 
 export async function FetchSale(_parent: any, args: any, context: Context) {
   try {
-    if (!context.session) {
+    if (!context.user) {
       throw new Error("Unauthorized: User is not logged in");
     }
 
-    const { id: userId } = context.session;
+    const { id: userId } = context.user;
 
     const validatedArgs: fetchSaleInput = fetchSaleSchema.parse(args);
 

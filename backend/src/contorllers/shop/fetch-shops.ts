@@ -30,7 +30,7 @@ export async function GetShops(
         .limit(limit)
         .lean()
         .select("-password"),
-      Shop.countDocuments(),
+      Shop.countDocuments(queryFilter),
     ]);
 
     const totalPages = Math.ceil(totalDocument / limit);

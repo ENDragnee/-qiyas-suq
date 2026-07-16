@@ -4,17 +4,17 @@ import { createSaleSchema, type CreateSaleInput } from "@/schemas/sale.schema";
 
 export async function CreateSale(_parent: any, args: any, context: Context) {
   try {
-    if (!context.session) {
+    if (!context.user) {
       throw new Error("Unauthorized: User is not logged in");
     }
 
-    const { id: userId } = context.session;
+    const { id: userId } = context.user;
 
     const validatedArgs: CreateSaleInput = createSaleSchema.parse(args);
 
     const { itemId, price, quantity, code, status } = validatedArgs;
 
-    const createSale = await Sale.create({
+    const saleDoc = await Sale.create({
       userId,
       itemId,
       price,
@@ -23,7 +23,15 @@ export async function CreateSale(_parent: any, args: any, context: Context) {
       status,
     });
 
-    return createSale;
+    const createSale = saleDoc.toObject();
+
+    return {
+      message: "Sale recorded",
+      data: {
+        ...createSale,
+        id: createSale._id.toString(),
+      },
+    };
   } catch (err) {
     if (Bun.env.ENVIRONMENT === "production") {
       return {

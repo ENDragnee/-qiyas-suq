@@ -52,7 +52,7 @@ export const typeDefs = `#graphql
 
   type UpdateSaleStatus {
     message: String!
-    staus: String!
+    status: String!
     data: IItem
   }
 

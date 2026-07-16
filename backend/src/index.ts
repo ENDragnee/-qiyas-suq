@@ -7,7 +7,6 @@ import { ApolloServer } from "@apollo/server";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import http from "http";
 import { expressMiddleware } from "@as-integrations/express4";
-import cors from "cors";
 import bodyParser from "body-parser";
 import { corsMiddleware } from "./middleware/cors";
 import { sessionMiddleware } from "./middleware/session";
@@ -18,7 +17,7 @@ import {
 } from "./middleware/passport";
 import { typeDefs } from "@/graphql/types";
 import { resolvers } from "@/graphql/resolvers";
-import type { Context } from "@/types/graphql-context";
+import type { Context, ContextUser } from "@/types/graphql-context";
 
 const app = express();
 dotenv.config({ path: "../.env" });
@@ -49,14 +48,12 @@ await server.start();
 
 app.use(
   "/api/graphql",
-  cors<cors.CorsRequest>(),
+  corsMiddleware,
   express.json(),
   bodyParser.json(),
   expressMiddleware(server, {
     context: async ({ req }) => {
-      const session = req.session;
-
-      return session;
+      return { user: req.user as ContextUser | undefined };
     },
   }),
 );

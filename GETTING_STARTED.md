@@ -63,7 +63,7 @@ The installer drops Bun at `~/.bun/bin/bun` and appends it to your `~/.bashrc`.
 
 ```bash
 bun --version
-# expected: 1.3.14   (any recent 1.x is fine)
+# expected: 1.3.14.   (any recent 1.x is fine)
 ```
 
 If `bun: command not found` persists, use the full path: `~/.bun/bin/bun`.
@@ -87,7 +87,7 @@ docker --version
 ```
 
 > In this environment Docker is **already installed** and your user (`tri`) is already
-> in the `docker` group, so `docker` works directly. If you ever get a *permission denied*
+> in the `docker` group, so `docker` works directly. If you ever get a _permission denied_
 > error, re-run the docker command prefixed with `sg docker -c "…"` (e.g.
 > `sg docker -c "docker ps"`). Both forms are shown below.
 
@@ -177,13 +177,13 @@ ROUND_SALT=10
 ENVIRONMENT=development
 ```
 
-| Variable | Example value | What it does |
-|----------|---------------|--------------|
-| `PORT` | `3000` | The port the backend listens on (REST + GraphQL). |
-| `DATABASE_URL` | `mongodb://suq:qazwsxedc@localhost:27017/suq?authSource=admin` | How to reach Mongo. `authSource=admin` is **required** (the root user lives in the `admin` db). |
-| `SESSION_SECRET` | `dev-secret-change-me` | Secret that signs the session cookie. Use a strong random value in production. |
-| `ROUND_SALT` | `10` | bcrypt cost factor for password hashing. The app throws if this is missing. |
-| `ENVIRONMENT` | `development` | Set to `production` to hide raw error details from API responses. |
+| Variable         | Example value                                                  | What it does                                                                                    |
+| ---------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `PORT`           | `3000`                                                         | The port the backend listens on (REST + GraphQL).                                               |
+| `DATABASE_URL`   | `mongodb://suq:qazwsxedc@localhost:27017/suq?authSource=admin` | How to reach Mongo. `authSource=admin` is **required** (the root user lives in the `admin` db). |
+| `SESSION_SECRET` | `dev-secret-change-me`                                         | Secret that signs the session cookie. Use a strong random value in production.                  |
+| `ROUND_SALT`     | `10`                                                           | bcrypt cost factor for password hashing. The app throws if this is missing.                     |
+| `ENVIRONMENT`    | `development`                                                  | Set to `production` to hide raw error details from API responses.                               |
 
 ### Frontend — `frontend/.env.local`
 
@@ -198,8 +198,8 @@ The file now contains:
 NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 
-| Variable | Example value | What it does |
-|----------|---------------|--------------|
+| Variable              | Example value           | What it does                                                                                                                   |
+| --------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | `NEXT_PUBLIC_API_URL` | `http://localhost:3000` | Base URL of the backend (REST + GraphQL). Must be a `localhost`/`127.0.0.1` origin so CORS + credentialed cookies work in dev. |
 
 > **Start the backend from inside `backend/`** (as shown in Step 7). Bun auto-loads
@@ -246,11 +246,11 @@ MongoDB Connected Successfully
 
 What it created (memorize these — you'll log in with them in Part 2):
 
-| Account | Username | Password | Role |
-|---------|----------|----------|------|
-| Shop owner / admin | `admin` | `adminpass123` | `admin` |
-| Regular staff | `testuser` | `userpass123` | `user` |
-| **Shop invite** (used at signup) | Shop name: **Seed Shop**<br>Shop password: **`adminpass123`** | — | — |
+| Account                          | Username                                                      | Password       | Role    |
+| -------------------------------- | ------------------------------------------------------------- | -------------- | ------- |
+| Shop owner / admin               | `admin`                                                       | `adminpass123` | `admin` |
+| Regular staff                    | `testuser`                                                    | `userpass123`  | `user`  |
+| **Shop invite** (used at signup) | Shop name: **Seed Shop**<br>Shop password: **`adminpass123`** | —              | —       |
 
 > The **shop id** (`6a581093…` above) is what you type when **signing up a new user**.
 > It's printed here, and it's also visible any time on the `/shops` page. The **shop
@@ -347,8 +347,8 @@ the seed in Part 1 Step 7.)
 - **Go to:** http://localhost:3001/signup
 - **Type:**
   - **Name:** `New Person`
-  - **Username:** `newperson`  *(must be unique; pick any name not already used)*
-  - **Password:** `newpass123`  *(≥ 8 chars)*
+  - **Username:** `newperson` _(must be unique; pick any name not already used)_
+  - **Password:** `newpass123` _(≥ 8 chars)_
   - **Shop invite** section:
     - **Shop ID:** paste the **shop id** from the seed output in Part 1 Step 7
       (e.g. `6a581093bc03c2cf1bb6cabd`), **or** open http://localhost:3001/shops,
@@ -359,7 +359,7 @@ the seed in Part 1 Step 7.)
 - ✅ **Correct:** redirected to `/dashboard` showing **"Your items"** (empty state on
   first signup).
 - ❌ **Wrong:**
-  - *"invalid shop password"* / *"shop not found"* → the Shop ID or Shop password is
+  - _"invalid shop password"_ / _"shop not found"_ → the Shop ID or Shop password is
     wrong. Re-copy the id from `/shops`; the password is `adminpass123`.
   - Redirect loop or 401 → you're likely not passing the shop invite fields.
 
@@ -376,7 +376,7 @@ the seed in Part 1 Step 7.)
 - **Click:** **Sign in**.
 - **Lands on:** http://localhost:3001/dashboard (or the page you were sent to via `?next=`).
 - ✅ **Correct:** redirected to `/dashboard`.
-- ❌ **Wrong:** *"invalid credentials"* → wrong password (should be `userpass123`); or the
+- ❌ **Wrong:** _"invalid credentials"_ → wrong password (should be `userpass123`); or the
   backend isn't running (check Terminal 1).
 
 ---
@@ -419,7 +419,7 @@ id from the URL `/dashboard/items/<itemId>/edit`.)
   - **Price:** `9.99`
   - **Stock:** `10`
   - **Description:** `A sample product for testing.`
-  - **Image:** *optional* — leave blank for the no-image path; or click **Choose image**
+  - **Image:** _optional_ — leave blank for the no-image path; or click **Choose image**
     and pick a small JPG/PNG to try the upload path.
 - **Click:** **Create item** (or **Save**).
 - **Lands on:** http://localhost:3001/dashboard — the new row **Verified Widget** appears
@@ -430,7 +430,7 @@ id from the URL `/dashboard/items/<itemId>/edit`.)
   (the normal case in this setup), the upload fails gracefully and the item is still
   created **without** an image — this is expected, not a bug.
 - ❌ **Wrong:**
-  - A 400 with *"shopId … undefined"* → shouldn't happen via the UI (the form auto-fills
+  - A 400 with _"shopId … undefined"_ → shouldn't happen via the UI (the form auto-fills
     `shopId` from your session). If you see it, the app failed to read your session; log
     out and back in.
   - Stuck on the form with no redirect → check the backend Terminal 1 log for a validation
@@ -535,32 +535,32 @@ id from the URL `/dashboard/items/<itemId>/edit`.)
 
 ## Every route
 
-| Route | Login required? | What it does |
-|-------|-----------------|--------------|
-| `/` | No | Landing page: what Kiyas is, **Sign in** + **Join a shop**. |
-| `/shops` | No | Public shop directory grid (`ShopCard`: banner, name, account count). |
-| `/shops/[shopId]` | No | Shop profile: banner, name, account count; **no item grid** (none exists) + a plain note. |
-| `/items/[itemId]` | No | Single item: image, name, price (mono), stock, description. Logged-in → **Buy now**; logged-out → **Sign in to buy**. |
-| `/login` | No | `userName` + `password` → redirect to `next` or `/dashboard`. |
-| `/signup` | No | "Join a shop": name, userName, password, then **shop id** + **shop password**. |
-| `/account` | Yes | Your profile: name, username, shop, role. |
-| `/account/sales` | Yes | Your purchase history table (real data). |
-| `/account/settings` | Yes | Password reset form (old + new). |
-| `/dashboard` | Yes | This shop's item table (name, price, stock, status, edit/delete; Load-more). |
-| `/dashboard/items/new` | Yes | Create-item form (shared); optional image via 2-step upload. |
-| `/dashboard/items/[itemId]/edit` | Yes | Edit-item form; saves via PATCH (persists). |
-| `/admin` | **Admin only** | Admin landing (role-gated layout). |
-| `/admin/shops` | **Admin only** | All-shops table + Load-more + delete-confirm. |
-| `/admin/shops/new` | **Admin only** | Create-shop form (`accounts` comma-separated → string[]). |
-| `/style-guide` | — | **Dev only** design-system preview; renders a placeholder in production. |
+| Route                            | Login required? | What it does                                                                                                          |
+| -------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `/`                              | No              | Landing page: what Kiyas is, **Sign in** + **Join a shop**.                                                           |
+| `/shops`                         | No              | Public shop directory grid (`ShopCard`: banner, name, account count).                                                 |
+| `/shops/[shopId]`                | No              | Shop profile: banner, name, account count; **no item grid** (none exists) + a plain note.                             |
+| `/items/[itemId]`                | No              | Single item: image, name, price (mono), stock, description. Logged-in → **Buy now**; logged-out → **Sign in to buy**. |
+| `/login`                         | No              | `userName` + `password` → redirect to `next` or `/dashboard`.                                                         |
+| `/signup`                        | No              | "Join a shop": name, userName, password, then **shop id** + **shop password**.                                        |
+| `/account`                       | Yes             | Your profile: name, username, shop, role.                                                                             |
+| `/account/sales`                 | Yes             | Your purchase history table (real data).                                                                              |
+| `/account/settings`              | Yes             | Password reset form (old + new).                                                                                      |
+| `/dashboard`                     | Yes             | This shop's item table (name, price, stock, status, edit/delete; Load-more).                                          |
+| `/dashboard/items/new`           | Yes             | Create-item form (shared); optional image via 2-step upload.                                                          |
+| `/dashboard/items/[itemId]/edit` | Yes             | Edit-item form; saves via PATCH (persists).                                                                           |
+| `/admin`                         | **Admin only**  | Admin landing (role-gated layout).                                                                                    |
+| `/admin/shops`                   | **Admin only**  | All-shops table + Load-more + delete-confirm.                                                                         |
+| `/admin/shops/new`               | **Admin only**  | Create-shop form (`accounts` comma-separated → string[]).                                                             |
+| `/style-guide`                   | —               | **Dev only** design-system preview; renders a placeholder in production.                                              |
 
 ## Seeded test accounts (from Part 1 Step 7)
 
-| Username | Password | Role | Used for |
-|----------|----------|------|----------|
-| `admin` | `adminpass123` | `admin` | Admin area (`/admin/*`), creating shops. |
-| `testuser` | `userpass123` | `user` | Normal staff flow (dashboard, buy, sales). |
-| — Shop **Seed Shop** | invite password `adminpass123` | — | The shop id + this password are what you type at **signup**. |
+| Username             | Password                       | Role    | Used for                                                     |
+| -------------------- | ------------------------------ | ------- | ------------------------------------------------------------ |
+| `admin`              | `adminpass123`                 | `admin` | Admin area (`/admin/*`), creating shops.                     |
+| `testuser`           | `userpass123`                  | `user`  | Normal staff flow (dashboard, buy, sales).                   |
+| — Shop **Seed Shop** | invite password `adminpass123` | —       | The shop id + this password are what you type at **signup**. |
 
 > The **shop id** is printed by the seed and also visible on `/shops`. The shop invite
 > password is `adminpass123`.
@@ -594,14 +594,14 @@ accounts, just re-run the seed; it upserts admin/testuser and recreates "Seed Sh
 
 ## Where to look if something doesn't work
 
-| Symptom | Most useful doc |
-|---------|-----------------|
-| How to run / test / the manual checklist | `RUN_AND_TEST.md` |
-| Backend API contract, data models, the 17 known backend issues | `ARCHITECTURE.md` |
-| Deviations the frontend build made from the spec, live verification log | `NOTES.md` |
+| Symptom                                                                        | Most useful doc                         |
+| ------------------------------------------------------------------------------ | --------------------------------------- |
+| How to run / test / the manual checklist                                       | `RUN_AND_TEST.md`                       |
+| Backend API contract, data models, the 17 known backend issues                 | `ARCHITECTURE.md`                       |
+| Deviations the frontend build made from the spec, live verification log        | `NOTES.md`                              |
 | The backend fixes that were applied (GraphQL auth, PATCH, CORS, buy-now, etc.) | `BACKEND_FIXES.md`, `CHANGES_REPORT.md` |
-| Continuity / "what was the last agent doing" | `HANDOFF.md` |
-| Full product + technical overview (the big picture) | `PROJECT_OVERVIEW.md` |
+| Continuity / "what was the last agent doing"                                   | `HANDOFF.md`                            |
+| Full product + technical overview (the big picture)                            | `PROJECT_OVERVIEW.md`                   |
 
 ## Known quirks you'll notice (all harmless in dev)
 
@@ -612,7 +612,7 @@ accounts, just re-run the seed; it upserts admin/testuser and recreates "Seed Sh
 - **Item image upload needs SeaweedFS** (optional service). Without it, items are created
   fine with no image.
 - **The automated e2e smoke** (`frontend/scripts/e2e-smoke.ts`, puppeteer + Chrome) is a
-  *regression* check pinned to a previously-seeded item id and a `CODE1234` sale — it is
+  _regression_ check pinned to a previously-seeded item id and a `CODE1234` sale — it is
   **not** a fresh-state setup test. After a DB wipe + reseed it needs that data present to
   pass 5/5. The manual walkthrough above is the authoritative fresh-state check.
 - **Buy-now marks the sale `"success"` immediately.** That's why stock decrements at purchase

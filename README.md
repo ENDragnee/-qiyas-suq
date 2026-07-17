@@ -33,12 +33,12 @@ inventory, sell items one at a time, and review what has been sold.
 
 ## Tech stack
 
-| Layer    | Stack                                                                |
-|-----------|----------------------------------------------------------------------|
-| Backend   | Bun, Express 5, Apollo GraphQL 5, Mongoose 8, MongoDB              |
-| Frontend  | Next.js 16 (App Router), React 19, Tailwind 4, React Compiler     |
-| Auth      | Session cookies (Passport `local` + `express-session`, in-memory)    |
-| Tooling   | Bun (no bundler on the backend — it executes TypeScript directly)      |
+| Layer    | Stack                                                             |
+| -------- | ----------------------------------------------------------------- |
+| Backend  | Bun, Express 5, Apollo GraphQL 5, Mongoose 8, MongoDB             |
+| Frontend | Next.js 16 (App Router), React 19, Tailwind 4, React Compiler     |
+| Auth     | Session cookies (Passport `local` + `express-session`, in-memory) |
+| Tooling  | Bun (no bundler on the backend — it executes TypeScript directly) |
 
 The backend exposes a REST API under `/api/*` and a GraphQL endpoint at
 `/api/graphql`. The frontend is a separate Next.js app that talks to the backend over
@@ -63,13 +63,13 @@ cp backend/.env.example backend/.env
 
 The backend reads `backend/.env` from its own directory. The important variables:
 
-| Variable        | Description                                                 |
-|-----------------|-------------------------------------------------------------|
-| `DATABASE_URL`  | MongoDB connection string. The auth user lives in the `admin` |
-|                 | database, so include `authSource=admin`.                    |
-| `SESSION_SECRET`| Secret used to sign the session cookie.                       |
-| `ROUND_SALT`    | bcrypt salt rounds (e.g. `10`).                              |
-| `PORT`          | HTTP port for the backend (defaults to `3000`).              |
+| Variable         | Description                                                   |
+| ---------------- | ------------------------------------------------------------- |
+| `DATABASE_URL`   | MongoDB connection string. The auth user lives in the `admin` |
+|                  | database, so include `authSource=admin`.                      |
+| `SESSION_SECRET` | Secret used to sign the session cookie.                       |
+| `ROUND_SALT`     | bcrypt salt rounds (e.g. `10`).                               |
+| `PORT`           | HTTP port for the backend (defaults to `3000`).               |
 
 Start the backend:
 
@@ -100,7 +100,9 @@ Open http://localhost:3001.
 ### 3. Seed a development shop (optional, dev only)
 
 The API forces every sign-up to role `user`, so on a fresh database there is no admin
-to create shops. A dev-only seed script inserts an admin, a shop, and a regular user:
+to create shops. A dev-only seed script inserts an
+admin, a shop, and a regular user:
+Project setup instructions updated.
 
 ```bash
 cd backend
@@ -116,18 +118,18 @@ script refuses to run when `ENVIRONMENT=production`.
 
 Backend (`backend/`):
 
-| Command            | Purpose                                  |
-|-------------------|------------------------------------------|
-| `bun run dev`     | Start the API in development mode.         |
-| `bun run typecheck` | Run `tsc --noEmit` for type errors.    |
+| Command             | Purpose                             |
+| ------------------- | ----------------------------------- |
+| `bun run dev`       | Start the API in development mode.  |
+| `bun run typecheck` | Run `tsc --noEmit` for type errors. |
 
 Frontend (`frontend/`):
 
-| Command              | Purpose                                     |
-|---------------------|---------------------------------------------|
+| Command               | Purpose                                    |
+| --------------------- | ------------------------------------------ |
 | `bun run dev -p 3001` | Start the Next.js dev server on port 3001. |
-| `bun run build`     | Production build.                            |
-| `bun run lint`      | ESLint.                                     |
+| `bun run build`       | Production build.                          |
+| `bun run lint`        | ESLint.                                    |
 
 ## Project structure
 
@@ -178,7 +180,7 @@ These are recognized issues carried over from the backend and intentionally left
 separate decision:
 
 - Password reset accepts a plaintext value (no token/email flow).
-- The admin "delete item" mutation actually deletes a *shop*.
+- The admin "delete item" mutation actually deletes a _shop_.
 - No Dockerfile is provided for the backend; the dev setup assumes a local container.
 - Public item lookup has no auth check (intended for the public surface, but worth
   reviewing).

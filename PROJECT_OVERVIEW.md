@@ -13,11 +13,12 @@
 ## 1. What the product is, and who it's for
 
 **Kiyas / qiyas-suq is a tenant-scoped shop inventory & sales tool — not an open
-marketplace.** (The name pairs *qiyas* "comparison" with *suq* "market," which
+marketplace.** (The name pairs _qiyas_ "comparison" with _suq_ "market," which
 originally suggested a comparison marketplace, but the backend does not support
 that, and the scope was deliberately narrowed.)
 
 Concretely:
+
 - A **shop** is a tenant. It is created by an **admin**, and its `password` acts as
   a **staff invite code**.
 - A user **signs up by knowing a specific shop's id + that shop's password**
@@ -37,37 +38,39 @@ tool, not a consumer storefront).
 session and returns only `req.user.shopId`'s items; there is no per-shop or
 all-items public endpoint; signup is gated by shop id + password. Cross-shop
 browsing and a cart are therefore impossible to build honestly against the current
-backend, and were cut. See §10 for the full list of cuts and why.
+backend, and were cut. See §10 for the full list of cuts and why?
 
 ---
 
 ## 2. Tech stack
 
 ### Backend (`backend/`)
-| Concern | Choice |
-|---------|--------|
-| Runtime | **Bun** (executes TS directly — no bundler build) |
-| HTTP | **Express 5** |
-| GraphQL | **Apollo Server 5** via `@as-integrations/express4` (sales domain only) |
-| Database | **MongoDB** via **Mongoose 8** |
-| Auth | **Passport `local`** + `express-session` (session-cookie, **no JWT**) |
-| Sessions | `express-session`, **in-memory** (lost on restart; no Redis) |
-| Password hashing | `bcrypt` 6 |
-| Validation | `zod` 4 |
-| Object storage | **SeaweedFS** (S3-style, native REST API; master hard-coded `:9333`) |
-| CORS | `cors` 2.8 (localhost-only, credentialed) |
-| Config | `dotenv` 17 (loads `../.env`; Bun also auto-loads cwd `.env`) |
+
+| Concern          | Choice                                                                  |
+| ---------------- | ----------------------------------------------------------------------- |
+| Runtime          | **Bun** (executes TS directly — no bundler build)                       |
+| HTTP             | **Express 5**                                                           |
+| GraphQL          | **Apollo Server 5** via `@as-integrations/express4` (sales domain only) |
+| Database         | **MongoDB** via **Mongoose 8**                                          |
+| Auth             | **Passport `local`** + `express-session` (session-cookie, **no JWT**)   |
+| Sessions         | `express-session`, **in-memory** (lost on restart; no Redis)            |
+| Password hashing | `bcrypt` 6                                                              |
+| Validation       | `zod` 4                                                                 |
+| Object storage   | **SeaweedFS** (S3-style, native REST API; master hard-coded `:9333`)    |
+| CORS             | `cors` 2.8 (localhost-only, credentialed)                               |
+| Config           | `dotenv` 17 (loads `../.env`; Bun also auto-loads cwd `.env`)           |
 
 ### Frontend (`frontend/`)
-| Concern | Choice |
-|---------|--------|
-| Framework | **Next.js 16.2.10** (App Router) |
-| UI | **React 19.2.4** |
-| Styling | **Tailwind CSS 4** (`@tailwindcss/postcss`) |
-| Compiler | **React Compiler** enabled (`next.config.ts`) |
-| Language | **TypeScript 5** |
-| Lint | ESLint 9 + `eslint-config-next` |
-| e2e | `puppeteer-core` + system Chrome (dev only) |
+
+| Concern   | Choice                                        |
+| --------- | --------------------------------------------- |
+| Framework | **Next.js 16.2.10** (App Router)              |
+| UI        | **React 19.2.4**                              |
+| Styling   | **Tailwind CSS 4** (`@tailwindcss/postcss`)   |
+| Compiler  | **React Compiler** enabled (`next.config.ts`) |
+| Language  | **TypeScript 5**                              |
+| Lint      | ESLint 9 + `eslint-config-next`               |
+| e2e       | `puppeteer-core` + system Chrome (dev only)   |
 
 > **Next.js 16 breaking changes:** the agent rules (`frontend/CLAUDE.md`) require
 > reading `node_modules/next/dist/docs/` before coding. Notably, `middleware.ts`
@@ -100,39 +103,43 @@ Errors generally return `{ status:"fail", errors:[...] }` (validation) or
 `{ message, data? }`.
 
 ### 4.1 REST — Auth (`routes/auth.ts`)
-| Method | Path | Auth | Notes |
-|--------|------|------|-------|
-| POST | `/api/auth/signup` | None | Body: `name`, `userName`, `password`, `role` (validated but **ignored** — forced `"user"`), `shop:{ shopId, password }`. Verifies the shop + shop password, creates a `user`. Returns `201 { message, data: newUser }`. **Leaks password hash.** |
-| POST | `/api/auth/login` | None | Fields exactly `userName` + `password`. `200 { message:"User loged in", user }` + sets `connect.sid` cookie. |
-| POST | `/api/auth/logout` | None | `req.logout()` then `res.redirect("/")`. |
-| PATCH | `/api/auth/reset-password` | Session | `oldPassword` → `findByIdAndUpdate(userId,{password:newPassword})`. ⚠️ **Stores new password in plaintext** (§10 #2). |
-| GET | `/api/auth/me` | Session | **Added by a fix.** `200 { user }` if authenticated, else `401`. Shape matches the frontend's `getSession()`. ⚠️ **Leaks password hash** (§10 #9). |
+
+| Method | Path                       | Auth    | Notes                                                                                                                                                                                                                                            |
+| ------ | -------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| POST   | `/api/auth/signup`         | None    | Body: `name`, `userName`, `password`, `role` (validated but **ignored** — forced `"user"`), `shop:{ shopId, password }`. Verifies the shop + shop password, creates a `user`. Returns `201 { message, data: newUser }`. **Leaks password hash.** |
+| POST   | `/api/auth/login`          | None    | Fields exactly `userName` + `password`. `200 { message:"User loged in", user }` + sets `connect.sid` cookie.                                                                                                                                     |
+| POST   | `/api/auth/logout`         | None    | `req.logout()` then `res.redirect("/")`.                                                                                                                                                                                                         |
+| PATCH  | `/api/auth/reset-password` | Session | `oldPassword` → `findByIdAndUpdate(userId,{password:newPassword})`. ⚠️ **Stores new password in plaintext** (§10 #2).                                                                                                                            |
+| GET    | `/api/auth/me`             | Session | **Added by a fix.** `200 { user }` if authenticated, else `401`. Shape matches the frontend's `getSession()`. ⚠️ **Leaks password hash** (§10 #9).                                                                                               |
 
 ### 4.2 REST — Shops (`routes/shop.ts`)
-| Method | Path | Auth | Notes |
-|--------|------|------|-------|
-| GET | `/api/shop` | **None (public)** | Paginated/searchable/sortable; strips `password`. `metadata.count` now uses the filtered query (fixed). |
-| GET | `/api/shop/:id` | **None (public)** | Single shop; strips `password`. |
-| POST | `/api/shop` | **admin** | Creates shop. ⚠️ Returns shop **with hashed password**. |
-| DELETE | `/api/admin/shop/:id` | **admin** | Deletes shop. `204`. |
-| DELETE | `/api/shop` | Session | Deletes the caller's own shop (`req.user.id`). `204`. |
-| PATCH | `/api/shop` | Session | Updates own shop. ⚠️ Was always 400 (required an unsent `user` key) — **fixed**. |
+
+| Method | Path                  | Auth              | Notes                                                                                                   |
+| ------ | --------------------- | ----------------- | ------------------------------------------------------------------------------------------------------- |
+| GET    | `/api/shop`           | **None (public)** | Paginated/searchable/sortable; strips `password`. `metadata.count` now uses the filtered query (fixed). |
+| GET    | `/api/shop/:id`       | **None (public)** | Single shop; strips `password`.                                                                         |
+| POST   | `/api/shop`           | **admin**         | Creates shop. ⚠️ Returns shop **with hashed password**.                                                 |
+| DELETE | `/api/admin/shop/:id` | **admin**         | Deletes shop. `204`.                                                                                    |
+| DELETE | `/api/shop`           | Session           | Deletes the caller's own shop (`req.user.id`). `204`.                                                   |
+| PATCH  | `/api/shop`           | Session           | Updates own shop. ⚠️ Was always 400 (required an unsent `user` key) — **fixed**.                        |
 
 ### 4.3 REST — Items (`routes/item.ts`)
-| Method | Path | Auth | Notes |
-|--------|------|------|-------|
-| GET | `/api/item` | Session | Lists **caller's shop** items; paginated/searchable. |
-| GET | `/api/item/:id` | **None (public)** | Single item. ⚠️ No auth check (§10 #10). |
-| POST | `/api/item` | Session | Creates item under `req.user.shopId`. |
-| DELETE | `/api/item/:id` | Session | Deletes item owned by caller's shop. `204`. |
-| DELETE | `/api/admin/item/:id` | **admin** | ⚠️ **BUG: deletes a Shop, not an item** (§10 #4). No admin delete-item UI exists because of this. |
-| PATCH | `/api/item/:id` | Session | Updates item owned by caller's shop. ⚠️ Was always 400 — **fixed**. |
+
+| Method | Path                  | Auth              | Notes                                                                                             |
+| ------ | --------------------- | ----------------- | ------------------------------------------------------------------------------------------------- |
+| GET    | `/api/item`           | Session           | Lists **caller's shop** items; paginated/searchable.                                              |
+| GET    | `/api/item/:id`       | **None (public)** | Single item. ⚠️ No auth check (§10 #10).                                                          |
+| POST   | `/api/item`           | Session           | Creates item under `req.user.shopId`.                                                             |
+| DELETE | `/api/item/:id`       | Session           | Deletes item owned by caller's shop. `204`.                                                       |
+| DELETE | `/api/admin/item/:id` | **admin**         | ⚠️ **BUG: deletes a Shop, not an item** (§10 #4). No admin delete-item UI exists because of this. |
+| PATCH  | `/api/item/:id`       | Session           | Updates item owned by caller's shop. ⚠️ Was always 400 — **fixed**.                               |
 
 ### 4.4 REST — Files (`routes/file.ts`)
-| Method | Path | Auth | Notes |
-|--------|------|------|-------|
-| POST | `/api/file/upload/request-ticket` | Session | Body `name`, `mimeType` (enum), `size`. Asks SeaweedFS master for `fid`+`publicUrl`, creates a `File` record (`status:"pending"`), returns `{ uploadUrl, fid, dbResult }`. |
-| DELETE | `/api/file/:fid` | Session | Looks up file by `fid`+`uploadedBy`, `DELETE`s on the SeaweedFS volume, removes DB record. `200`. |
+
+| Method | Path                              | Auth    | Notes                                                                                                                                                                      |
+| ------ | --------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| POST   | `/api/file/upload/request-ticket` | Session | Body `name`, `mimeType` (enum), `size`. Asks SeaweedFS master for `fid`+`publicUrl`, creates a `File` record (`status:"pending"`), returns `{ uploadUrl, fid, dbResult }`. |
+| DELETE | `/api/file/:fid`                  | Session | Looks up file by `fid`+`uploadedBy`, `DELETE`s on the SeaweedFS volume, removes DB record. `200`.                                                                          |
 
 > **Upload flow (2-step):** `POST request-ticket` → client **PUTs bytes** to the
 > returned `uploadUrl`. The DB `File.status` is **never flipped to `uploaded`**
@@ -140,6 +147,7 @@ Errors generally return `{ status:"fail", errors:[...] }` (validation) or
 > SeaweedFS isn't running.
 
 ### 4.5 GraphQL — Sales (`/api/graphql`)
+
 SDL domain = **Sales only**. Context is the authenticated `req.user` (fixed).
 | Operation | Auth | Behavior |
 |-----------|------|----------|
@@ -166,6 +174,7 @@ SDL domain = **Sales only**. Context is the authenticated `req.user` (fixed).
 ## 6. Folder structure
 
 ### Backend (`backend/`)
+
 ```
 backend/
 ├── package.json            # scripts: dev (bun ./src/index.ts), typecheck (tsc --noEmit)
@@ -190,6 +199,7 @@ backend/
 ```
 
 ### Frontend (`frontend/`)
+
 ```
 frontend/
 ├── package.json            # dev (-p 3001), build, start, lint
@@ -235,6 +245,7 @@ ledger (reinforces "qiyas" = measurement at the data level). Dark mode is deferr
 but the CSS-variable structure supports it.
 
 ### Tokens (`globals.css`, Tailwind v4 `@theme`)
+
 - Surfaces: `--color-background #F7F4EE`, `--color-surface #FFFFFF`, `--color-surface-sunken #EFEBE2`.
 - Text: `--color-foreground #1F2421`, `--color-muted #6B7570`, `--color-text-inverse #F7F4EE`.
 - Brand: `--color-primary #0E5C53`, `--color-primary-hover #0B463F`, `--color-primary-tint #E4EFEC`.
@@ -248,12 +259,14 @@ but the CSS-variable structure supports it.
   `bg-background`. All other token names kept verbatim.)
 
 ### Typography
+
 - **Display — Fraunces** (variable): page headings only.
 - **Body/UI — Inter** (variable): nav, buttons, forms, table content.
 - **Numerals — IBM Plex Mono**: prices, stock, sale codes, quantities (the deliberate ledger detail).
 - Sizes: display 2rem/Fraunces 500; title 1.25rem/Inter 600; body 1rem; body-sm 0.875rem; caption 0.75rem/uppercase; num 0.9375rem/IBM Plex Mono 600; num-lg 1.5rem.
 
 ### Component library (`components/ui/`)
+
 `Button` (primary/accent/secondary/ghost/destructive, loading keeps width),
 `Input`/`Select`/`Textarea` (44px min height, label above, error below),
 `Badge` (status/stock, always paired with text), `Modal` (focus trap, used for
@@ -266,24 +279,24 @@ pulse), `EmptyState` (icon + Fraunces headline + line + one action), `DataTable`
 
 ## 8. Every page / route and what it does
 
-| Route | Auth | What it does |
-|-------|------|--------------|
-| `/` | public | Landing: what Kiyas is, "Sign in" + "Join a shop" CTAs. |
-| `/shops` | public | Shop directory grid (`ShopCard`: banner, name, account count*). |
-| `/shops/[shopId]` | public | Shop profile: banner, name, account count; **no item grid** (none exists) + a plain note. |
-| `/items/[itemId]` | public | Single item: image, name, price (mono lg), stock, description. Logged-in → Buy-now; logged-out → "Sign in to buy". |
-| `/login` | public | `userName`+`password` → redirect to `next` or `/dashboard`. |
-| `/signup` | public | "Join a shop": name, userName, password, then shop id + shop password. |
-| `/account` | session | Profile: name, username, shop, role. |
-| `/account/sales` | session | Sales history table (real data; was a "temporarily unavailable" banner before the fix). |
-| `/account/settings` | session | Password reset form (old + new). |
-| `/dashboard` | session | This shop's item `DataTable` (name, price, stock, status, edit/delete; Load-more). |
-| `/dashboard/items/new` | session | Create item form (shared `ItemForm`); optional image via 2-step upload. |
-| `/dashboard/items/[itemId]/edit` | session | Edit item form; PATCH now persists (was always 400 before the fix). |
-| `/admin` | admin | Admin landing (role-gated layout). |
-| `/admin/shops` | admin | All-shops `DataTable` + Load-more + delete-confirm. |
-| `/admin/shops/new` | admin | Create shop form (`ShopForm`; `accounts` comma-separated → string[]). |
-| `/style-guide` | — | **Dev-only** design-system preview; renders a placeholder in production. |
+| Route                            | Auth    | What it does                                                                                                       |
+| -------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------ |
+| `/`                              | public  | Landing: what Kiyas is, "Sign in" + "Join a shop" CTAs.                                                            |
+| `/shops`                         | public  | Shop directory grid (`ShopCard`: banner, name, account count\*).                                                   |
+| `/shops/[shopId]`                | public  | Shop profile: banner, name, account count; **no item grid** (none exists) + a plain note.                          |
+| `/items/[itemId]`                | public  | Single item: image, name, price (mono lg), stock, description. Logged-in → Buy-now; logged-out → "Sign in to buy". |
+| `/login`                         | public  | `userName`+`password` → redirect to `next` or `/dashboard`.                                                        |
+| `/signup`                        | public  | "Join a shop": name, userName, password, then shop id + shop password.                                             |
+| `/account`                       | session | Profile: name, username, shop, role.                                                                               |
+| `/account/sales`                 | session | Sales history table (real data; was a "temporarily unavailable" banner before the fix).                            |
+| `/account/settings`              | session | Password reset form (old + new).                                                                                   |
+| `/dashboard`                     | session | This shop's item `DataTable` (name, price, stock, status, edit/delete; Load-more).                                 |
+| `/dashboard/items/new`           | session | Create item form (shared `ItemForm`); optional image via 2-step upload.                                            |
+| `/dashboard/items/[itemId]/edit` | session | Edit item form; PATCH now persists (was always 400 before the fix).                                                |
+| `/admin`                         | admin   | Admin landing (role-gated layout).                                                                                 |
+| `/admin/shops`                   | admin   | All-shops `DataTable` + Load-more + delete-confirm.                                                                |
+| `/admin/shops/new`               | admin   | Create shop form (`ShopForm`; `accounts` comma-separated → string[]).                                              |
+| `/style-guide`                   | —       | **Dev-only** design-system preview; renders a placeholder in production.                                           |
 
 \* `ShopCard` shows **account count**, not item count — the backend has no item-count
 field and no per-shop items endpoint (NOTES deviation #3).
@@ -293,6 +306,7 @@ field and no per-shop items endpoint (NOTES deviation #3).
 ## 9. Known limitations & deliberately cut scope
 
 **Cut (and why):**
+
 - **No cart / no multi-item checkout.** `Sale` has no order-grouping; cross-shop
   browsing was also removed, leaving no discovery flow to build a cart from. Purchases
   are single-item "Buy now" (final for v1).
@@ -300,13 +314,14 @@ field and no per-shop items endpoint (NOTES deviation #3).
   scoped to the caller's shop; there is no all-items or per-shop public endpoint.
   So `/browse`, a Compare Tray, `ProductCard`, and per-shop item grids were cut.
 - **No `/seller/*`.** Merged into `/dashboard`.
-- **No admin delete-item control.** `DELETE /api/admin/item/:id` deletes a *Shop*
+- **No admin delete-item control.** `DELETE /api/admin/item/:id` deletes a _Shop_
   (§10 #4), so the UI omits it entirely.
 - **Dark mode.** Deferred (token structure supports it).
 - **`middleware.ts` → `proxy.ts`.** Next 16 deprecates the middleware convention;
   works today, migrate when convenient.
 
 **Limitations / bugs left in place (intentionally out of scope for this work):**
+
 - **Buy-now → sales-history visibility (UX default, not a bug):** `createSale`
   defaults `status:"pending"`; `fetchSales` defaults `status:"success"`. A just-
   purchased item won't show in `/account/sales` until status flips to `"success"`
@@ -351,6 +366,7 @@ Browser ──(session cookie, credentials)──▶ Next.js :3001 ──fetch�
                                           Mongo (shops/items/sales/users/files)
                                           SeaweedFS (images, :9333/:8333, optional)
 ```
+
 One auth model (Passport session cookie) across REST + GraphQL. REST = everything
 except sales; GraphQL = sales only. Each shop is an isolated tenant; the frontend
 never sees another shop's inventory.

@@ -60,7 +60,7 @@ sg docker -c "docker run -d --name suq -p 27017:27017 \
   -v suq_mongo_volume:/data/db mongo:7.0"
 ```
 - After a reboot, restart the existing volume: `sg docker -c "docker start suq"`.
-- If Mongo auth acts inconsistently, wipe and reseed:
+- If Mongo auth acts inconsistently, wipe, and reseed:
   `sg docker -c "docker rm -f suq"` → `docker volume rm suq_mongo_volume` → re-run §2.1 → re-run §2.3 seed.
 
 > **SeaweedFS** (image upload) is **optional** for the core flows. The upload

@@ -12,12 +12,12 @@ The frontend (`FRONTEND_BUILD_GUIDE_UPDATE_1.md`) depends on four backend behavi
 
 In addition to the four prerequisites, **two more backend bugs were found and fixed during verification** because they blocked features the frontend had already built:
 
-- a **GraphQL CORS** bug that made *every* browser GraphQL call fail (curl worked, the browser rejected it), and
+- a **GraphQL CORS** bug that made _every_ browser GraphQL call fail (curl worked, the browser rejected it), and
 - the **Buy-now `createSale` shape** bug (ARCHITECTURE §10 #8) that made the purchase flow always error in the browser.
 
 A **dev seed script** was also added to solve a bootstrapping dead-end (no admin can be created through the API, so a fresh DB has no one to create shops).
 
-All changes are minimal — no refactoring beyond the bug being fixed.
+All changes are minimal no refactoring beyond the bug being fixed.
 
 ---
 
@@ -33,11 +33,13 @@ Every sales resolver did `const { id: userId } = context.session;` → `userId` 
 nothing. The entire sales feature was non-functional.
 
 **What changed (files):**
+
 - `src/index.ts` (GraphQL mount): `context` now returns `{ user: req.user as ContextUser | undefined }`.
 - `src/types/graphql-context.d.ts`: `Context` is now `{ user?: ContextUser }` (was the raw session shape).
 - `src/graphql/resolvers/create-sale.ts`, `fetch-sales.ts`, `fetch-sale.ts`, `update-sale-status.ts`: read `context.user.id` instead of `context.session.id`.
 
 **Before → after (the context line in `index.ts`):**
+
 ```ts
 // before
 expressMiddleware(server, { context: async ({ req }) => req.session });
@@ -49,6 +51,7 @@ expressMiddleware(server, {
 ```
 
 **How verified:**
+
 - `createSale` (authed) now writes the real `userId` (confirmed by a successful mutation returning the sale).
 - `fetchSales` as the owner returns the owner's sales; as another user / admin it returns `totalDocuments: 0` for that user — the cross-user filter works.
 - See "Fix 6" below for the end-to-end Buy-now confirmation.
@@ -65,11 +68,13 @@ present, so `validate()` always threw a Zod error → **`PATCH /api/item/:id` an
 `PATCH /api/shop` returned 400 on every call.** Item/Shop editing was impossible.
 
 **What changed (files):**
+
 - `src/schemas/item.schema.ts` (`patchItemSchema`): removed the unsent `user` key; now
   `{ params: { id }, body: { name?, price?, stock?, image?, description? } }`.
 - `src/schemas/shop.schema.ts` (`patchShopSchema`): same treatment (params `id` + optional body fields).
 
 **Before → after (`patchItemSchema` body, conceptually):**
+
 ```ts
 // before: schema required a `user` object the request never sends
 z.object({ user: z.object({ id: z.string(), shopId: z.string() }), body: { ... } })
@@ -78,9 +83,11 @@ z.object({ user: z.object({ id: z.string(), shopId: z.string() }), body: { ... }
 z.object({ params: z.object({ id: z.string().regex(/^[0-9a-fA-F]{24}$/) }),
            body: z.object({ name: ..., price: ..., stock: ..., image: ..., description: ... }) })
 ```
+
 (Controllers continue to scope the mutation by `req.user.shopId` / `req.user.id`, which is correct — the `user` key was redundant.)
 
 **How verified:**
+
 - `PATCH /api/item/:id` with a session cookie now returns **200** (was always 400).
 - End-to-end: the puppeteer e2e smoke edits an item and confirms the new name persists (`EDIT PATCH persisted new name (Widget Verified): OK`).
 
@@ -90,22 +97,25 @@ z.object({ params: z.object({ id: z.string().regex(/^[0-9a-fA-F]{24}$/) }),
 
 **What was broken (root cause):**
 There was **no** endpoint to check the current session server-side. The frontend
-could only gate protected routes on *cookie presence* (a UX nicety, not real
+could only gate protected routes on _cookie presence_ (a UX nicety, not real
 authorization), and could not render correct logged-in state. The build guide
 (§11) treated a minimal `/api/auth/me` as a prerequisite.
 
 **What changed (files):**
+
 - `src/contorllers/auth/me.ts` (new): `GetMe` returns `200 { user: req.user }` when
   `req.isAuthenticated()`, else `401 { message: "User is not logged in" }`.
 - `src/routes/auth.ts`: `authRoutes.get("/api/auth/me", GetMe)`.
 
 **Response shape (matches what `frontend/src/lib/session.ts` expects — it reads `json.user ?? json.data`):**
+
 ```
 GET /api/auth/me   (with session cookie)  → 200 { "user": { _id, name, userName, role, shopId, ... } }
 GET /api/auth/me   (no cookie)            → 401 { "message": "User is not logged in" }
 ```
 
 **How verified:**
+
 - With a logged-in cookie: `curl .../api/auth/me` → `200` with the user object.
 - Without a cookie: `curl .../api/auth/me` → `401`.
 - Frontend: protected layouts (`account`, `dashboard`, `admin`) call `getSession()`, which now performs a real `/api/auth/me` check instead of cookie-presence-only.
@@ -114,7 +124,7 @@ GET /api/auth/me   (no cookie)            → 401 { "message": "User is not logg
 > object previously included the bcrypt `password` hash (ARCHITECTURE §10 #9). It is
 > now stripped in `contorllers/auth/me.ts` (the user is converted to a plain object and
 > `password` destructured out before sending), verified by a real request. `POST
-> /api/auth/login` **still** returns the hash — a separate, still-out-of-scope endpoint.
+/api/auth/login` **still** returns the hash — a separate, still-out-of-scope endpoint.
 
 ---
 
@@ -123,22 +133,25 @@ GET /api/auth/me   (no cookie)            → 401 { "message": "User is not logg
 **What was broken (root cause):**
 `GetItems` and `GetShops` called `Item.countDocuments()` / `Shop.countDocuments()`
 **without** the `queryFilter`, so `metadata.count` / `totalPages` / `hasNextPage`
-reflected the *whole collection*, not the filtered result. Pagination metadata was
+reflected the _whole collection_, not the filtered result. Pagination metadata was
 wrong whenever a search/sort filter was active.
 
 **What changed (files):**
+
 - `src/contorllers/item/fetch-items.ts`: `Item.countDocuments(queryFilter)`.
 - `src/contorllers/shop/fetch-shops.ts`: `Shop.countDocuments(queryFilter)`.
 
 **Before → after:**
+
 ```ts
 // before
-const totalDocument = await Item.countDocuments();          // global count
+const totalDocument = await Item.countDocuments(); // global count
 // after
 const totalDocument = await Item.countDocuments(queryFilter); // filtered count
 ```
 
 **How verified:**
+
 - `GET /api/shop?search=zzzNoMatch` → `"count":0` (the filter is applied; previously this returned the full collection size).
 - Dashboard item table and admin shop table now compute correct `hasNextPage` for Load-more.
 
@@ -155,11 +168,13 @@ ignores CORS) worked. This blocked Buy-now and sales history in the actual UI
 regardless of Fixes 1 and 3.
 
 **What changed (files):**
+
 - `src/index.ts` (GraphQL mount): replaced the bare `cors()` with the existing
   `corsMiddleware` (the same one used globally — it reflects the `localhost` origin
   and sets `credentials: true`).
 
 **Before → after (mount chain):**
+
 ```ts
 // before
 app.use("/api/graphql", cors(), express.json(), bodyParser.json(), expressMiddleware(...))
@@ -169,6 +184,7 @@ app.use("/api/graphql", corsMiddleware, express.json(), bodyParser.json(), expre
 ```
 
 **How verified:**
+
 - `OPTIONS /api/graphql` with `Origin: http://localhost:3001` now returns
   `Access-Control-Allow-Origin: http://localhost:3001` (and credentialed POSTs succeed from the browser).
 - The Buy-now flow and `/account/sales` render in a real browser (puppeteer e2e).
@@ -181,24 +197,40 @@ app.use("/api/graphql", corsMiddleware, express.json(), bodyParser.json(), expre
 The SDL declares `CreateSale { message: String!  data: ISale }` — `message` is
 **non-nullable**. But `create-sale.ts` returned the raw `Sale.create(...)`
 document, which has **no `message` field** (and exposes `_id`, not `id`). GraphQL
-threw *"Cannot return null for non-nullable field CreateSale.message"*, so Buy now
+threw _"Cannot return null for non-nullable field CreateSale.message"_, so Buy now
 **always errored in the browser** and showed a failure toast — even though the sale
-*was* written to the DB before the throw (a silent double-purchase risk on retry).
-Sales *history* (`fetchSales`) worked because its resolver already maps `_id`→`id`
+_was_ written to the DB before the throw (a silent double-purchase risk on retry).
+Sales _history_ (`fetchSales`) worked because its resolver already maps `_id`→`id`
 and returns `{ message, data }`.
 
 **What changed (files):**
+
 - `src/graphql/resolvers/create-sale.ts`: build the doc, convert with `.toObject()`,
   and return `{ message: "Sale recorded", data: { ...createSale, id: createSale._id.toString() } }` — mirroring `fetch-sales.ts`.
 
 **Before → after:**
+
 ```ts
 // before
-const createSale = await Sale.create({ userId, itemId, price, quantity, code, status });
-return createSale;   // no `message` field -> GraphQL null error
+const createSale = await Sale.create({
+  userId,
+  itemId,
+  price,
+  quantity,
+  code,
+  status,
+});
+return createSale; // no `message` field -> GraphQL null error
 
 // after
-const saleDoc = await Sale.create({ userId, itemId, price, quantity, code, status });
+const saleDoc = await Sale.create({
+  userId,
+  itemId,
+  price,
+  quantity,
+  code,
+  status,
+});
 const createSale = saleDoc.toObject();
 return {
   message: "Sale recorded",
@@ -207,6 +239,7 @@ return {
 ```
 
 **How verified:**
+
 - Real authed `createSale` GraphQL mutation now returns
   `{"createSale":{"message":"Sale recorded","data":{"id":"…","itemId":"…","price":19.99,"quantity":2,"code":"testcode1","status":"pending"}}}` with **no error**.
 - The frontend `ItemDetailPanel` buy-now modal reads `data.code` for its success toast, so the flow now completes instead of failing.
@@ -229,10 +262,12 @@ DB there is no admin to create shops, which blocks testing/signup entirely.
 **Solution:** `backend/scripts/seed.ts` inserts an admin user + a shop + a regular
 user directly (bypassing the API role restriction). Run from `backend/` with the
 same `DATABASE_URL`:
+
 ```bash
 DATABASE_URL='mongodb://suq:qazwsxedc@localhost:27017/suq?authSource=admin' \
   bun scripts/seed.ts
 ```
+
 Creates `admin` / `adminpass123` (role `admin`), shop "Seed Shop", and `testuser` /
 `userpass123` (role `user`, same shop). See `RUN_AND_TEST.md` for usage.
 
@@ -243,7 +278,8 @@ Creates `admin` / `adminpass123` (role `admin`), shop "Seed Shop", and `testuser
 ## Out-of-scope §10 items intentionally left as-is
 
 These were known but explicitly **not** part of this work (verified present, not changed):
-- #2 plaintext password reset, #4 `DeleteItemAdmin` deletes a *Shop*, #7 missing Dockerfile,
+
+- #2 plaintext password reset, #4 `DeleteItemAdmin` deletes a _Shop_, #7 missing Dockerfile,
   #10 `GetItem` has no auth check, #11 `File.status` never updated, #12 `createItemSchema` vs
   model mismatch, #13 no admin API (seed solves it), #14 dead Google OAuth dependency, #15
   `validate()` clobbers `req`, #16 docker/.env divergence, #17 naming debt.
@@ -256,13 +292,13 @@ These were known but explicitly **not** part of this work (verified present, not
 
 ## Verification summary
 
-| Fix | Check | Result |
-|-----|-------|--------|
-| 1 GraphQL context | `createSale` writes real `userId`; `fetchSales` filters by user | ✅ |
-| 2 PATCH validation | `PATCH /api/item/:id` returns 200 (was 400) | ✅ |
-| 3 `/api/auth/me` | `200 {user}` authed, `401` unauthenticated | ✅ |
-| 4 Pagination count | `GET /api/shop?search=zzzNoMatch` → `count:0` | ✅ |
-| 5 GraphQL CORS | `OPTIONS /api/graphql` → `Allow-Origin: http://localhost:3001` | ✅ |
-| 6 Buy-now shape | authed `createSale` returns `{ message, data }` (no null error) | ✅ |
+| Fix                | Check                                                           | Result |
+| ------------------ | --------------------------------------------------------------- | ------ |
+| 1 GraphQL context  | `createSale` writes real `userId`; `fetchSales` filters by user | ✅     |
+| 2 PATCH validation | `PATCH /api/item/:id` returns 200 (was 400)                     | ✅     |
+| 3 `/api/auth/me`   | `200 {user}` authed, `401` unauthenticated                      | ✅     |
+| 4 Pagination count | `GET /api/shop?search=zzzNoMatch` → `count:0`                   | ✅     |
+| 5 GraphQL CORS     | `OPTIONS /api/graphql` → `Allow-Origin: http://localhost:3001`  | ✅     |
+| 6 Buy-now shape    | authed `createSale` returns `{ message, data }` (no null error) | ✅     |
 
 Plus: backend `bun run typecheck` (`tsc --noEmit`) → **0 errors**; frontend puppeteer e2e smoke → **4/4 pass** (login→dashboard, `/account/sales` real sale, edit PATCH persists, `/admin` blocks regular user).
